@@ -5,15 +5,30 @@ import (
 	"encoding/json"
 	"io/fs"
 	"net/http"
+	"time"
 )
 
 //go:embed swagger-ui
 var content embed.FS
 
+// statusRecorder retient le code de statut envoyé, pour pouvoir l'afficher dans les logs
+type statusRecorder struct {
+	http.ResponseWriter
+	status int
+}
+
+func (r *statusRecorder) WriteHeader(code int) {
+	r.status = code
+	r.ResponseWriter.WriteHeader(code)
+}
+
 func logReq(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		Logger.Infof("New request to: '%s %s'", r.Method, r.RequestURI)
-		next.ServeHTTP(w, r)
+		start := time.Now()
+		rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
+		next.ServeHTTP(rec, r)
+		Logger.Infof("Response: '%s %s' -> %d (%v)", r.Method, r.RequestURI, rec.status, time.Since(start))
 	})
 }
 

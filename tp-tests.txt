@@ -1,0 +1,11 @@
+# Commandes de test du projet (à lancer à la racine, là où se trouve go.mod)
+
+# 1. Tests unitaires, avec le pourcentage de couverture
+go test -v -cover .
+
+# 2. Rapport de couverture en HTML
+go test -coverprofile=coverage.out .
+go tool cover -html=coverage.out -o coverage.html
+
+# 3. Tests API : lancer d'abord le serveur dans un autre terminal ("go run ." ou le conteneur Docker)
+go test -count=1 -v ./test/apitests

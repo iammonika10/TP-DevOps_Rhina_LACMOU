@@ -1,1 +1,6 @@
 backend
+
+coverage.out
+coverage.html
+sbom-v1.json
+sbom-v2.json
